@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<title></title>
+	<meta name="generator" content="LibreOffice 24.8.1.2 (Linux)"/>
+	<meta name="created" content="00:00:00"/>
+	<meta name="changed" content="00:00:00"/>
+	<style type="text/css">
+		@page { size: 8.27in 11.69in; margin: 0.79in }
+		p { line-height: 115%; margin-bottom: 0.1in; background: transparent }
+		pre { background: transparent }
+		pre.western { font-family: "Liberation Mono", monospace; font-size: 10pt }
+		pre.cjk { font-family: "NSimSun", monospace; font-size: 10pt }
+		pre.ctl { font-family: "Liberation Mono", monospace; font-size: 10pt }
+	</style>
+</head>
+<body lang="en-US" link="#000080" vlink="#800000" dir="ltr"><pre class="western">import React, { useState, useMemo } from 'react';
+import {
+  Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
+  ResponsiveContainer, Legend, Tooltip,
+} from 'recharts';
+import { 
+  Globe, Map, Landmark, Info, ChevronRight, 
+  BarChart3, ShieldCheck, Zap 
+} from 'lucide-react';
+
+const APP_DATA = {
+  nigeria: [
+    { name: 'Access vs GT Bank', access: [8.5, 6.3, 8.0, 4.0, 1.8, 3.1], peer: [9.0, 5.8, 6.0, 5.0, 10.0, 8.0], peerName: 'GT Bank' },
+    { name: 'Access vs Zenith', access: [8.5, 6.3, 8.0, 4.0, 1.8, 3.1], peer: [8.8, 6.0, 7.5, 8.5, 9.2, 9.5], peerName: 'Zenith' },
+    { name: 'Access vs UBA', access: [8.5, 6.3, 8.0, 4.0, 1.8, 3.1], peer: [9.2, 7.5, 8.5, 6.0, 4.5, 5.2], peerName: 'UBA' },
+    { name: 'Access vs First Bank', access: [8.5, 6.3, 8.0, 4.0, 1.8, 3.1], peer: [9.5, 5.5, 9.0, 5.5, 3.8, 4.8], peerName: 'First Bank' },
+    { name: 'Access vs Stanbic IBTC', access: [8.5, 6.3, 8.0, 4.0, 1.8, 3.1], peer: [7.0, 4.5, 6.5, 9.0, 8.5, 7.5], peerName: 'Stanbic' },
+    { name: 'Access vs Fidelity', access: [8.5, 6.3, 8.0, 4.0, 1.8, 3.1], peer: [6.5, 5.0, 7.0, 7.0, 5.5, 6.0], peerName: 'Fidelity' },
+    { name: 'Access vs Ecobank (NG)', access: [8.5, 6.3, 8.0, 4.0, 1.8, 3.1], peer: [7.5, 5.8, 6.0, 5.5, 4.0, 4.5], peerName: 'Ecobank' },
+  ],
+  africa: [
+    { name: 'Access vs Standard Bank (SA)', access: [8.5, 6.3, 8.0, 4.0, 3.5, 4.1], peer: [9.5, 8.5, 9.0, 8.0, 7.5, 8.2], peerName: 'Standard Bank' },
+    { name: 'Access vs Attijariwafa (Morocco)', access: [8.5, 6.3, 8.0, 4.0, 3.5, 4.1], peer: [8.8, 7.0, 8.5, 8.5, 6.8, 7.8], peerName: 'Attijariwafa' },
+    { name: 'Access vs Equity Bank (Kenya)', access: [8.5, 6.3, 8.0, 4.0, 3.5, 4.1], peer: [9.0, 8.0, 9.5, 7.5, 8.2, 8.0], peerName: 'Equity Bank' },
+  ],
+  global: [
+    { name: 'Access vs JPMorgan Chase', access: [8.5, 3.1, 8.0, 4.0, 1.5, 2.1], peer: [10.0, 10.0, 9.5, 9.0, 9.8, 9.5], peerName: 'JPMorgan' },
+    { name: 'Access vs Citigroup', access: [8.5, 3.1, 8.0, 4.0, 1.5, 2.1], peer: [9.5, 9.0, 8.5, 7.5, 7.8, 7.2], peerName: 'Citigroup' },
+    { name: 'Access vs HSBC', access: [8.5, 3.1, 8.0, 4.0, 1.5, 2.1], peer: [9.2, 9.5, 8.0, 8.5, 8.0, 8.4], peerName: 'HSBC' },
+  ]
+};
+
+const METRIC_LABELS = [
+  'Brand Salience', 'Visibility', 'Social License', 
+  'Compliance', 'Productivity', 'Efficiency Ratio'
+];
+
+export default function BankRadarAnalysis() {
+  const [tier, setTier] = useState('nigeria');
+  const [comparisonIdx, setComparisonIdx] = useState(0);
+
+  const currentComparison = APP_DATA[tier][comparisonIdx];
+  
+  const chartData = useMemo(() =&gt; {
+    return METRIC_LABELS.map((label, i) =&gt; ({
+      subject: label,
+      access: currentComparison.access[i],
+      peer: currentComparison.peer[i],
+      fullMark: 10
+    }));
+  }, [currentComparison]);
+
+  return (
+    &lt;div className=&quot;min-h-screen bg-slate-50 font-sans text-slate-800&quot;&gt;
+      &lt;div className=&quot;max-w-7xl mx-auto p-4 md:p-8 space-y-6&quot;&gt;
+        
+        {/* Navigation / Tier Selection */}
+        &lt;div className=&quot;flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-slate-100&quot;&gt;
+          &lt;div className=&quot;flex items-center gap-3&quot;&gt;
+            &lt;div className=&quot;bg-indigo-600 p-2 rounded-lg&quot;&gt;
+              &lt;BarChart3 className=&quot;text-white w-6 h-6&quot; /&gt;
+            &lt;/div&gt;
+            &lt;div&gt;
+              &lt;h1 className=&quot;text-xl font-bold text-slate-900&quot;&gt;Multi-Tier Reputation Web&lt;/h1&gt;
+              &lt;p className=&quot;text-xs text-slate-500 font-medium uppercase tracking-wider&quot;&gt;Normalization: Logarithmic Performance Scaling&lt;/p&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+
+          &lt;div className=&quot;flex bg-slate-100 p-1 rounded-xl&quot;&gt;
+            {[
+              { id: 'nigeria', label: 'Local (7)', icon: &lt;Landmark className=&quot;w-4 h-4&quot; /&gt; },
+              { id: 'africa', label: 'African (3)', icon: &lt;Map className=&quot;w-4 h-4&quot; /&gt; },
+              { id: 'global', label: 'Global (3)', icon: &lt;Globe className=&quot;w-4 h-4&quot; /&gt; }
+            ].map((t) =&gt; (
+              &lt;button
+                key={t.id}
+                onClick={() =&gt; { setTier(t.id); setComparisonIdx(0); }}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${tier === t.id ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:bg-slate-200'}`}
+              &gt;
+                {t.icon} {t.label}
+              &lt;/button&gt;
+            ))}
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div className=&quot;grid grid-cols-1 lg:grid-cols-12 gap-6&quot;&gt;
+          
+          {/* Comparison Selector Sidebar */}
+          &lt;div className=&quot;lg:col-span-3 space-y-2&quot;&gt;
+            &lt;h3 className=&quot;text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 px-2&quot;&gt;Select Comparison&lt;/h3&gt;
+            {APP_DATA[tier].map((item, idx) =&gt; (
+              &lt;button
+                key={item.name}
+                onClick={() =&gt; setComparisonIdx(idx)}
+                className={`w-full text-left p-4 rounded-xl border transition-all flex items-center justify-between group ${comparisonIdx === idx ? 'bg-white border-indigo-200 shadow-md ring-1 ring-indigo-50' : 'bg-transparent border-transparent hover:bg-slate-200/50 text-slate-600'}`}
+              &gt;
+                &lt;span className=&quot;text-sm font-bold&quot;&gt;{item.name}&lt;/span&gt;
+                &lt;ChevronRight className={`w-4 h-4 transition-transform ${comparisonIdx === idx ? 'text-indigo-500 translate-x-1' : 'text-slate-300'}`} /&gt;
+              &lt;/button&gt;
+            ))}
+          &lt;/div&gt;
+
+          {/* Main Visualizer */}
+          &lt;div className=&quot;lg:col-span-6 bg-white rounded-3xl shadow-sm border border-slate-100 p-8 relative overflow-hidden&quot;&gt;
+            &lt;div className=&quot;flex justify-between items-start mb-8&quot;&gt;
+              &lt;div&gt;
+                &lt;h2 className=&quot;text-2xl font-black text-slate-900&quot;&gt;{currentComparison.name}&lt;/h2&gt;
+                &lt;p className=&quot;text-slate-500 text-sm&quot;&gt;Web balance across Hard (Left) and Soft (Right) assets&lt;/p&gt;
+              &lt;/div&gt;
+              &lt;div className=&quot;flex gap-2&quot;&gt;
+                &lt;div className=&quot;flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold border border-blue-100&quot;&gt;
+                  &lt;div className=&quot;w-2 h-2 rounded-full bg-blue-600&quot; /&gt; Access
+                &lt;/div&gt;
+                &lt;div className=&quot;flex items-center gap-1.5 px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-xs font-bold border border-orange-100&quot;&gt;
+                  &lt;div className=&quot;w-2 h-2 rounded-full bg-orange-600&quot; /&gt; {currentComparison.peerName}
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+
+            {/* Split Indicators */}
+            &lt;div className=&quot;absolute inset-0 pointer-events-none flex opacity-5 mt-20&quot;&gt;
+               &lt;div className=&quot;w-1/2 bg-slate-900&quot; /&gt;
+               &lt;div className=&quot;w-1/2 bg-indigo-900&quot; /&gt;
+            &lt;/div&gt;
+
+            &lt;div className=&quot;h-[400px] w-full relative z-10&quot;&gt;
+              &lt;ResponsiveContainer width=&quot;100%&quot; height=&quot;100%&quot;&gt;
+                &lt;RadarChart cx=&quot;50%&quot; cy=&quot;50%&quot; outerRadius=&quot;80%&quot; data={chartData} startAngle={60} endAngle={-300}&gt;
+                  &lt;PolarGrid stroke=&quot;#e2e8f0&quot; strokeDasharray=&quot;3 3&quot; /&gt;
+                  &lt;PolarAngleAxis 
+                    dataKey=&quot;subject&quot; 
+                    tick={{ fill: '#64748b', fontSize: 11, fontWeight: 700 }}
+                  /&gt;
+                  &lt;PolarRadiusAxis domain={[0, 10]} tick={false} axisLine={false} /&gt;
+                  &lt;Tooltip 
+                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
+                  /&gt;
+                  
+                  &lt;Radar
+                    name=&quot;Access Bank&quot;
+                    dataKey=&quot;access&quot;
+                    stroke=&quot;#0047AB&quot;
+                    strokeWidth={3}
+                    fill=&quot;#0047AB&quot;
+                    fillOpacity={0.25}
+                  /&gt;
+                  &lt;Radar
+                    name={currentComparison.peerName}
+                    dataKey=&quot;peer&quot;
+                    stroke=&quot;#EA580C&quot;
+                    strokeWidth={3}
+                    fill=&quot;#EA580C&quot;
+                    fillOpacity={0.15}
+                    strokeDasharray=&quot;5 5&quot;
+                  /&gt;
+                  &lt;Legend verticalAlign=&quot;bottom&quot; height={36}/&gt;
+                &lt;/RadarChart&gt;
+              &lt;/ResponsiveContainer&gt;
+            &lt;/div&gt;
+
+            &lt;div className=&quot;grid grid-cols-2 mt-8 border-t border-slate-50 pt-6&quot;&gt;
+              &lt;div className=&quot;text-center border-r border-slate-100&quot;&gt;
+                &lt;span className=&quot;text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1&quot;&gt;Hard Hemisphere&lt;/span&gt;
+                &lt;span className=&quot;text-xs font-medium text-slate-600&quot;&gt;Efficiency â¢ Compliance â¢ Productivity&lt;/span&gt;
+              &lt;/div&gt;
+              &lt;div className=&quot;text-center&quot;&gt;
+                &lt;span className=&quot;text-[10px] font-black text-indigo-400 uppercase tracking-widest block mb-1&quot;&gt;Soft Hemisphere&lt;/span&gt;
+                &lt;span className=&quot;text-xs font-medium text-slate-600&quot;&gt;Salience â¢ Visibility â¢ CSR License&lt;/span&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+
+          {/* Key Intelligence Panel */}
+          &lt;div className=&quot;lg:col-span-3 space-y-4&quot;&gt;
+             &lt;div className=&quot;bg-white p-5 rounded-2xl border border-slate-100 shadow-sm&quot;&gt;
+                &lt;h4 className=&quot;flex items-center gap-2 text-sm font-bold text-slate-900 mb-4&quot;&gt;
+                  &lt;Zap className=&quot;w-4 h-4 text-amber-500&quot; /&gt;
+                  Strategic Delta
+                &lt;/h4&gt;
+                &lt;div className=&quot;space-y-4&quot;&gt;
+                  &lt;div className=&quot;p-3 bg-slate-50 rounded-xl&quot;&gt;
+                    &lt;p className=&quot;text-[10px] font-bold text-slate-400 uppercase mb-1&quot;&gt;The &quot;Efficiency Gap&quot;&lt;/p&gt;
+                    &lt;p className=&quot;text-xs text-slate-700 leading-relaxed&quot;&gt;
+                      {tier === 'global' 
+                        ? &quot;Global peers operate with 15-20x more automation. Access's manual scale creates a visibility lead but a structural efficiency drag.&quot; 
+                        : tier === 'africa' 
+                        ? &quot;SA banks (Standard Bank) show higher compliance &amp; productivity scores due to mature regulatory frameworks.&quot; 
+                        : &quot;GT &amp; Zenith hold the efficiency frontier (8.0+), while Access focuses on Social License dominance.&quot;}
+                    &lt;/p&gt;
+                  &lt;/div&gt;
+                  &lt;div className=&quot;p-3 bg-indigo-50/50 rounded-xl&quot;&gt;
+                    &lt;p className=&quot;text-[10px] font-bold text-indigo-400 uppercase mb-1&quot;&gt;The &quot;Scale Advantage&quot;&lt;/p&gt;
+                    &lt;p className=&quot;text-xs text-slate-700 leading-relaxed&quot;&gt;
+                      Access Bank consistently outperforms in &lt;strong&gt;Visibility&lt;/strong&gt; and &lt;strong&gt;Social License&lt;/strong&gt; (Lagos Marathon impact), often scoring 20% higher than the peer average.
+                    &lt;/p&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+             &lt;/div&gt;
+
+             &lt;div className=&quot;bg-indigo-900 p-5 rounded-2xl text-white shadow-lg shadow-indigo-200&quot;&gt;
+                &lt;h4 className=&quot;text-sm font-bold mb-2 flex items-center gap-2&quot;&gt;
+                  &lt;ShieldCheck className=&quot;w-4 h-4&quot; /&gt;
+                  Q1 2026 Verdict
+                &lt;/h4&gt;
+                &lt;p className=&quot;text-xs text-indigo-100 leading-relaxed opacity-90&quot;&gt;
+                  &quot;Access Bank is effectively trading short-term &lt;strong&gt;Efficiency&lt;/strong&gt; for long-term &lt;strong&gt;Continental Visibility&lt;/strong&gt;. The web shows a heavy skew toward Soft Assetsâa classic sign of a brand in an aggressive acquisition phase.&quot;
+                &lt;/p&gt;
+             &lt;/div&gt;
+          &lt;/div&gt;
+
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+</body>
+</html>
